@@ -16,7 +16,19 @@ const ADD_EVENT_URL = `${API_BASE}/events`;
 
 // TODO: Implement this function to fetch event data from your backend. Return the parsed JSON (an array of event objects)
 // HINT: Use the `fetch()` API and handle errors appropriately.
-const fetchEvents = async () => {};
+const fetchEvents = async () => {
+  try {
+    const response = await fetch(FETCH_EVENTS_URL);
+    if(!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+    const json = await response.json();
+    return json.data;
+  } catch (error) {
+    console.error("Failed to fetch events:",error);
+    return[];
+  }
+};
 
 
 function App({}) {
@@ -26,19 +38,49 @@ function App({}) {
 
   // TODO: Use TanStack Query's `useQuery` hook to fetch events from your backend.
   // HINT: `queryKey` and a `queryFn`
-  const { data: events = [], isLoading, error } = useQuery({});
+  const { data: events = [], isLoading, error } = useQuery({
+    queryKey: ['events'],
+    queryFn: fetchEvents
+  });
 
   // TODO: Implement this function to send a POST request to your backend to add a new event.
   // HINT: Use the `fetch()` API and implement error handling.
-  const addEvent = async (newEvent) => {};
+  const addEvent = async (newEvent) => {
+    try {
+      const response = await fetch(ADD_EVENT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(newEvent)
+      });
+
+      if(!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+      const json = await response.json();
+      return json.data;
+    } catch (error) {
+      console.error("Failed to add event:",error);
+      throw error;
+    }
+  };
 
   // TODO: Use `useMutation` from TanStack Query to call your `addEvent` function.
   // HINT: On success, invalidate the query (so 'events' can be refeteched and updated) and close the form pop-up.
-  const mutation = useMutation({});
+  const mutation = useMutation({
+    mutationFn: addEvent,
+    onSuccess: () => {
+      queryClient.invalidateQueries(['events']);
+      setShowForm(false);
+    }
+  });
 
   // TODO: Call your mutation function to trigger the event addition.
   // HINT: Use `mutation.mutate()`.
-  const handleAddEvent = (newEvent) => {};
+  const handleAddEvent = (newEvent) => {
+    mutation.mutate(newEvent);
+  };
 
 
   return (
