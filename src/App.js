@@ -23,7 +23,7 @@ const fetchEvents = async () => {
       throw new Error(`Error: ${response.status}`);
     }
     const json = await response.json();
-    return json.data;
+    return json;
   } catch (error) {
     console.error("Failed to fetch events:",error);
     return[];
@@ -59,7 +59,7 @@ function App({}) {
         throw new Error(`Error: ${response.status}`);
       }
       const json = await response.json();
-      return json.data;
+      return json;
     } catch (error) {
       console.error("Failed to add event:",error);
       throw error;
